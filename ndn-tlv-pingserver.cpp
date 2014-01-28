@@ -5,6 +5,8 @@
  *
  */
 
+#include <boost/asio.hpp>
+
 #include <ndn-cpp-dev/name.hpp>
 #include <ndn-cpp-dev/face.hpp>
 #include <ndn-cpp-dev/node.hpp>
