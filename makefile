@@ -1,24 +1,35 @@
-CC				=	g++
+CC						=       g++
 
-CFLAGS				=	-c -Wall
+CFLAGS                  =       -c -Wall
 
-LFLAGS				=	-lboost_system
+LFLAGS                  =       -lboost_system
 
-SFLAGS				=	/usr/local/lib/libndn-cpp-dev.so
+SFLAGS                  =       /usr/local/lib/libndn-cpp-dev.so
 
-all				:	ndntlvpingserver ndntlvping
+all                     :       ndn-tlv-pingserver ndn-tlv-ping
 
-ndntlvpingserver		:	ndntlvpingserver.o
-					$(CC) ndntlvpingserver.o -o ndntlvpingserver  $(LFLAGS) $(SFLAGS)
-						
-ndntlvping			:	ndntlvping.o
-					$(CC) ndntlvping.o -o ndntlvping  $(LFLAGS) $(SFLAGS)
+ndn-tlv-pingserver      :       ndn-tlv-pingserver.o
+                                $(CC) ndn-tlv-pingserver.o -o ndn-tlv-pingserver  $(LFLAGS) $(SFLAGS)
 
-ndntlvpingserver.o		:	ndntlvpingserver.cpp
-					$(CC) $(CFLAGS) ndntlvpingserver.cpp  $(LFLAGS)
-												
-ndntlvping.o			:	ndntlvping.cpp
-					$(CC) $(CFLAGS) ndntlvping.cpp  $(LFLAGS)
+ndn-tlv-ping            :       ndn-tlv-ping.o
+                                $(CC) ndn-tlv-ping.o -o ndn-tlv-ping  $(LFLAGS) $(SFLAGS)
 
-clean				:	
-					rm -rf *.o ndntlvpingserver ndntlvping
+ndn-tlv-pingserver.o	:   	ndn-tlv-pingserver.cpp
+                        		$(CC) $(CFLAGS) ndn-tlv-pingserver.cpp  $(LFLAGS)
+
+ndn-tlv-ping.o          :       ndn-tlv-ping.cpp
+                                $(CC) $(CFLAGS) ndn-tlv-ping.cpp  $(LFLAGS)
+
+clean                   :
+                                rm -rf *.o ndn-tlv-pingserver ndn-tlv-ping
+
+PREFIX                  =       /usr/local
+BINDIR                  =       $(PREFIX)/bin
+
+install                 :
+                                install -D ndn-tlv-pingserver $(BINDIR)/ndn-tlv-pingserver
+                                install -D ndn-tlv-ping $(BINDIR)/ndn-tlv-ping
+
+uninstall               :
+                                -rm $(BINDIR)/ndn-tlv-pingserver
+                                -rm $(BINDIR)/ndn-tlv-ping
