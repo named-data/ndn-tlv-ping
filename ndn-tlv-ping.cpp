@@ -14,11 +14,6 @@
 #include <ndn-cpp-dev/name.hpp>
 #include <ndn-cpp-dev/security/key-chain.hpp>
 
-#if NDN_CPP_HAVE_CXX11
-// In the std library, the placeholders are in a different namespace than boost.
-using namespace ndn::func_lib::placeholders;
-#endif
-
 using namespace ndn;
 
 class NdnTlvPing
@@ -26,7 +21,7 @@ class NdnTlvPing
 public:
 
   NdnTlvPing( char* programName )
-{
+  {
     allowCaching_ = false;
     printTimestamp_ = false;
     totalPings_ = -1;
@@ -39,8 +34,7 @@ public:
     programName_ = programName;
     ioService_ = ptr_lib::make_shared<boost::asio::io_service>();
     face_ = Face(ioService_);
-    //pingStatistics_ = new PingStatistics();
-}
+  }
 
   class PingStatistics
   {
@@ -48,33 +42,33 @@ public:
 
     PingStatistics()
     {
-      sentPings = 0;
-      receivedPings = 0;
-      pingStartTime = boost::posix_time::microsec_clock::local_time();
-      minimumRoundTripTime = std::numeric_limits<double>::max();
-      maximumRoundTripTime = 0;
-      averageRoundTripTimeData = 0;
-      standardDeviationRoundTripTimeData = 0;
+      sentPings_ = 0;
+      receivedPings_ = 0;
+      pingStartTime_ = boost::posix_time::microsec_clock::local_time();
+      minimumRoundTripTime_ = std::numeric_limits<double>::max();
+      maximumRoundTripTime_ = 0;
+      averageRoundTripTimeData_ = 0;
+      standardDeviationRoundTripTimeData_ = 0;
     }
 
     void
     addToPingStatistics(double roundTripTime)
     {
-      if (roundTripTime < minimumRoundTripTime)
-        minimumRoundTripTime = roundTripTime;
-      if (roundTripTime > maximumRoundTripTime)
-        maximumRoundTripTime = roundTripTime;
-      averageRoundTripTimeData += roundTripTime;
-      standardDeviationRoundTripTimeData += roundTripTime*roundTripTime;
+      if (roundTripTime < minimumRoundTripTime_)
+        minimumRoundTripTime_ = roundTripTime;
+      if (roundTripTime > maximumRoundTripTime_)
+        maximumRoundTripTime_ = roundTripTime;
+      averageRoundTripTimeData_ += roundTripTime;
+      standardDeviationRoundTripTimeData_ += roundTripTime*roundTripTime;
     }
 
-    int sentPings;
-    int receivedPings;
-    boost::posix_time::ptime pingStartTime;
-    double minimumRoundTripTime;
-    double maximumRoundTripTime;
-    double averageRoundTripTimeData;
-    double standardDeviationRoundTripTimeData;
+    int sentPings_;
+    int receivedPings_;
+    boost::posix_time::ptime pingStartTime_;
+    double minimumRoundTripTime_;
+    double maximumRoundTripTime_;
+    double averageRoundTripTimeData_;
+    double standardDeviationRoundTripTimeData_;
 
   };
 
@@ -133,7 +127,7 @@ public:
   }
 
   void
-  setStartPingNumber(long int startPingNumber)
+  setStartPingNumber( uint64_t startPingNumber )
   {
     if (startPingNumber < 0)
       usage();
@@ -172,16 +166,16 @@ public:
   }
 
   void
-  onData(ndn::Face &face,
-    const ndn::ptr_lib::shared_ptr<const ndn::Interest> &interest,
-    const ndn::ptr_lib::shared_ptr<ndn::Data> &data)
+  onData( ndn::Face &face,
+          const ndn::ptr_lib::shared_ptr<const ndn::Interest> &interest,
+          const ndn::ptr_lib::shared_ptr<ndn::Data> &data )
   {
     std::string pingReference;
     double roundTripTime;
     boost::posix_time::time_duration roundTripDuration;
     pingReference = interest->getName().toUri();
     pingsReceived_++;
-    pingStatistics_.receivedPings++;
+    pingStatistics_.receivedPings_++;
     roundTripDuration = boost::posix_time::microsec_clock::local_time() - sentTimes_[pingReference];
     roundTripTime = roundTripDuration.total_microseconds()/1000.0;
     std::cout << "Content From " << prefix_;
@@ -192,8 +186,7 @@ public:
   }
 
   void
-  onTimeout(ndn::Face &face,
-      const ndn::ptr_lib::shared_ptr<const ndn::Interest> &interest)
+  onTimeout( ndn::Face &face, const ndn::ptr_lib::shared_ptr<const ndn::Interest> &interest )
   {
     std::cout << "Timeout From " << prefix_;
     std::cout << " - Ping Reference = " << interest->getName().getSubName(interest->getName().size()-1).toUri().substr(1);
@@ -205,22 +198,22 @@ public:
   {
     double packetLossPercentage;
     std::cout << "\n\n=== " << " Ping Statistics For "<< prefix_ <<" ===" << std::endl;
-    std::cout << "Sent=" << pingStatistics_.sentPings;
-    std::cout << ", Received=" << pingStatistics_.receivedPings;
-    packetLossPercentage = pingStatistics_.sentPings-pingStatistics_.receivedPings;
-    packetLossPercentage /= pingStatistics_.sentPings;
+    std::cout << "Sent=" << pingStatistics_.sentPings_;
+    std::cout << ", Received=" << pingStatistics_.receivedPings_;
+    packetLossPercentage = pingStatistics_.sentPings_-pingStatistics_.receivedPings_;
+    packetLossPercentage /= pingStatistics_.sentPings_;
     std::cout << ", Packet Loss=" << packetLossPercentage*100.0 << "%";
-    std::cout << ", Total Time=" << pingStatistics_.averageRoundTripTimeData << " ms\n";
-    if (pingStatistics_.receivedPings > 0) {
+    std::cout << ", Total Time=" << pingStatistics_.averageRoundTripTimeData_ << " ms\n";
+    if (pingStatistics_.receivedPings_ > 0) {
       double averageRoundTripTime;
       double standardDeviationRoundTripTime;
-      averageRoundTripTime = pingStatistics_.averageRoundTripTimeData / pingStatistics_.receivedPings;
-      standardDeviationRoundTripTime = pingStatistics_.standardDeviationRoundTripTimeData / pingStatistics_.receivedPings;
+      averageRoundTripTime = pingStatistics_.averageRoundTripTimeData_ / pingStatistics_.receivedPings_;
+      standardDeviationRoundTripTime = pingStatistics_.standardDeviationRoundTripTimeData_ / pingStatistics_.receivedPings_;
       standardDeviationRoundTripTime -= averageRoundTripTime*averageRoundTripTime;
       standardDeviationRoundTripTime = std::sqrt( standardDeviationRoundTripTime );
       std::cout << "Round Trip Time (Min/Max/Avg/MDev) = (";
-      std::cout << pingStatistics_.minimumRoundTripTime << "/";
-      std::cout << pingStatistics_.maximumRoundTripTime << "/";
+      std::cout << pingStatistics_.minimumRoundTripTime_ << "/";
+      std::cout << pingStatistics_.maximumRoundTripTime_ << "/";
       std::cout << averageRoundTripTime << "/";
       std::cout << standardDeviationRoundTripTime << ") ms\n";
     }
@@ -228,58 +221,53 @@ public:
   }
 
   void
-  performPing(const boost::system::error_code& errorCode, boost::asio::deadline_timer* deadlineTimer)
+  performPing( const boost::system::error_code& errorCode, boost::asio::deadline_timer* deadlineTimer )
   {
     if ((totalPings_ < 0) || (pingsSent_ < totalPings_)) {
-        pingsSent_++;
-        pingStatistics_.sentPings++;
+      pingsSent_++;
+      pingStatistics_.sentPings_++;
 
-        //Perform Ping
-        long int pingNumber;
-        char pingNumberString[20];
-        Name pingPacketName(prefix_);
+      //Perform Ping
+      uint64_t pingNumber;
+      char pingNumberString[20];
+      Name pingPacketName(prefix_);
 
-        pingPacketName.append("ping");
-        if(clientIdentifier_ != 0)
-          pingPacketName.append(clientIdentifier_);
-        std::memset(pingNumberString, 0, 20);
-        if (startPingNumber_ < 0)
-          pingNumber = (long int)std::rand();
-        else
-          {
-            pingNumber = startPingNumber_;
-            startPingNumber_++;
-          }
-        sprintf(pingNumberString, "%ld", pingNumber);
-        pingPacketName.append(pingNumberString);
-
-        ndn::Interest interest(pingPacketName);
-        if (allowCaching_)
-          interest.setMustBeFresh(false);
-        else
-          interest.setMustBeFresh(true);
-        interest.setInterestLifetime(pingTimeoutThreshold_);
-        interest.setNonce(pingNumber);
-
-        try {
-          sentTimes_[pingPacketName.toUri()] = boost::posix_time::microsec_clock::local_time();
-          face_.expressInterest(interest,
-                                ndn::func_lib::bind(&NdnTlvPing::onData, this, boost::ref(face_), _1, _2),
-                                ndn::func_lib::bind(&NdnTlvPing::onTimeout, this, boost::ref(face_), _1));
+      pingPacketName.append("ping");
+      if(clientIdentifier_ != 0)
+        pingPacketName.append(clientIdentifier_);
+      std::memset(pingNumberString, 0, 20);
+      if (startPingNumber_ < 0)
+        pingNumber = (uint64_t)std::rand();
+      else
+        {
+          pingNumber = startPingNumber_;
+          startPingNumber_++;
         }
-        catch(std::exception &e) {
-            std::cerr << "ERROR: " << e.what() << std::endl;
-            exit(1);
-        }
+      sprintf(pingNumberString, "%ld", pingNumber);
+      pingPacketName.append(pingNumberString);
 
-        deadlineTimer->expires_at(  deadlineTimer->expires_at() +
-            boost::posix_time::millisec((int)(pingInterval_*1000)));
-
-        deadlineTimer->async_wait(	boost::bind(	&NdnTlvPing::performPing,
-            this,
-            boost::asio::placeholders::error,
-            deadlineTimer));
-
+      ndn::Interest interest(pingPacketName);
+      if (allowCaching_)
+        interest.setMustBeFresh(false);
+      else
+        interest.setMustBeFresh(true);
+      interest.setInterestLifetime(pingTimeoutThreshold_);
+      interest.setNonce(pingNumber);
+       try {
+        sentTimes_[pingPacketName.toUri()] = boost::posix_time::microsec_clock::local_time();
+        face_.expressInterest(interest,
+                              ndn::func_lib::bind(&NdnTlvPing::onData, this, boost::ref(face_), _1, _2),
+                              ndn::func_lib::bind(&NdnTlvPing::onTimeout, this, boost::ref(face_), _1));
+        deadlineTimer->expires_at(deadlineTimer->expires_at() +
+                                  boost::posix_time::millisec((int)(pingInterval_*1000)));
+        deadlineTimer->async_wait(boost::bind(&NdnTlvPing::performPing,
+                                              this,
+                                              boost::asio::placeholders::error,
+                                              deadlineTimer));
+      }
+      catch(std::exception &e) {
+          std::cerr << "ERROR: " << e.what() << std::endl;
+      }
     }
   }
 
@@ -300,15 +288,19 @@ public:
     boost::asio::signal_set signalSet(*ioService_, SIGINT, SIGTERM);
     signalSet.async_wait(boost::bind(&NdnTlvPing::signalHandler, this));
 
-    boost::asio::deadline_timer deadlineTimer(	*ioService_,
-        boost::posix_time::seconds(pingInterval_));
+    boost::asio::deadline_timer deadlineTimer(*ioService_,
+                                              boost::posix_time::seconds(pingInterval_));
 
-    deadlineTimer.async_wait(	boost::bind(	&NdnTlvPing::performPing,
-        this,
-        boost::asio::placeholders::error,
-        &deadlineTimer));
-
-    face_.processEvents();
+    deadlineTimer.async_wait(boost::bind(&NdnTlvPing::performPing,
+                                         this,
+                                         boost::asio::placeholders::error,
+                                         &deadlineTimer));
+    try {
+      face_.processEvents();
+    }
+    catch(std::exception &e) {
+        std::cerr << "ERROR: " << e.what() << std::endl;
+    }
   }
 
 private:
@@ -320,11 +312,11 @@ private:
   int totalPings_;
   int pingsSent_;
   int pingsReceived_;
-  long int startPingNumber_;
+  uint64_t startPingNumber_;
   double pingInterval_;
   char* clientIdentifier_;
-  char *programName_;
-  char *prefix_;
+  char* programName_;
+  char* prefix_;
   PingStatistics pingStatistics_;
   ptr_lib::shared_ptr<boost::asio::io_service> ioService_;
   Face face_;
@@ -332,55 +324,49 @@ private:
 };
 
 
-int main(int argc, char* argv[])
+int main( int argc, char* argv[] )
 {
   int res;
 
-  try {
-      NdnTlvPing ndnTlvPing (argv[0]);
-      while ((res = getopt(argc, argv, "htai:c:n:p:")) != -1) {
-          switch (res) {
-          case 'a'  :
-            ndnTlvPing.setAllowCaching();
-            break;
-          case 'c'  :
-            ndnTlvPing.setTotalPings(atoi(optarg));
-            break;
-          case 'h'  :
-            ndnTlvPing.usage();
-            break;
-          case 'i'  :
-            ndnTlvPing.setPingInterval(atof(optarg));
-            break;
-          case 'n'  :
-            ndnTlvPing.setStartPingNumber(atol(optarg));
-            break;
-          case 'p'  :
-            ndnTlvPing.setClientIdentifier(optarg);
-            break;
-          case 't'  :
-            ndnTlvPing.setPrintTimestamp();
-            break;
-          default   :
-            ndnTlvPing.usage();
-            break;
-          }
-      }
-
-      argc -= optind;
-      argv += optind;
-
-      if (argv[0] == NULL)
+  NdnTlvPing ndnTlvPing (argv[0]);
+  while ((res = getopt(argc, argv, "htai:c:n:p:")) != -1) {
+    switch (res) {
+      case 'a'  :
+        ndnTlvPing.setAllowCaching();
+        break;
+      case 'c'  :
+        ndnTlvPing.setTotalPings(atoi(optarg));
+        break;
+      case 'h'  :
         ndnTlvPing.usage();
-
-      ndnTlvPing.setPrefix(argv[0]);
-
-      ndnTlvPing.initialize();
-
+        break;
+      case 'i'  :
+        ndnTlvPing.setPingInterval(atof(optarg));
+        break;
+      case 'n'  :
+        ndnTlvPing.setStartPingNumber(atol(optarg));
+        break;
+      case 'p'  :
+        ndnTlvPing.setClientIdentifier(optarg);
+        break;
+      case 't'  :
+        ndnTlvPing.setPrintTimestamp();
+        break;
+      default   :
+        ndnTlvPing.usage();
+        break;
+    }
   }
-  catch(std::exception &e) {
-      std::cerr << "ERROR: " << e.what() << std::endl;
-  }
+
+  argc -= optind;
+  argv += optind;
+
+  if (argv[0] == NULL)
+    ndnTlvPing.usage();
+
+  ndnTlvPing.setPrefix(argv[0]);
+  ndnTlvPing.initialize();
+
   return 0;
 }
 

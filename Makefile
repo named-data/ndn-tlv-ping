@@ -13,12 +13,12 @@ ndn-tlv-pingserver.o	:	ndn-tlv-pingserver.cpp
 ndn-tlv-ping.o		:	ndn-tlv-ping.cpp
 				$(CC) $(CFLAGS) ndn-tlv-ping.cpp  $(LFLAGS)
 clean			:
-				rm -rf *.o ndn-tlv-pingserver ndn-tlv-ping
+				rm -f *.o ndn-tlv-pingserver ndn-tlv-ping
 PREFIX			=	/usr/local
 BINDIR			=	$(PREFIX)/bin
 install			:
 				install -D ndn-tlv-pingserver $(BINDIR)/ndn-tlv-pingserver
 				install -D ndn-tlv-ping $(BINDIR)/ndn-tlv-ping
 uninstall		:
-				rm $(BINDIR)/ndn-tlv-pingserver
-				rm $(BINDIR)/ndn-tlv-ping
+				rm -f $(BINDIR)/ndn-tlv-pingserver
+				rm -f $(BINDIR)/ndn-tlv-ping

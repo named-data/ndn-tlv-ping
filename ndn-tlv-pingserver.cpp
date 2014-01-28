@@ -10,11 +10,6 @@
 #include <ndn-cpp-dev/node.hpp>
 #include <ndn-cpp-dev/security/key-chain.hpp>
 
-#if NDN_CPP_HAVE_CXX11
-// In the std library, the placeholders are in a different namespace than boost.
-using namespace ndn::func_lib::placeholders;
-#endif
-
 using namespace ndn;
 
 class NdnTlvPingServer
@@ -38,11 +33,11 @@ public:
   void
   usage()
   {
-    std::cout << "Usage: " << programName_ << " ndnx:/name/prefix [options]\n"
+    std::cout << "\nUsage: " << programName_ << " ndnx:/name/prefix [options]\n"
         "Starts a NDN ping server that responds to Interests with name"
         " ndnx:/name/prefix/ping/number.\n"
         "  [-x freshness] - set FreshnessSeconds\n"
-        "  [-h] - print this message and exit\n";
+        "  [-h] - print this message and exit\n\n";
     exit(1);
   }
 
@@ -67,28 +62,26 @@ public:
   }
 
   void
-  onInterest(const ptr_lib::shared_ptr<const Name> &name, const ptr_lib::shared_ptr<const Interest> &interest)
+  onInterest( const ptr_lib::shared_ptr<const Name> &name, const ptr_lib::shared_ptr<const Interest> &interest )
   {
-    if  ( name->equals(name_) ) {
-      Name interestName;
-      interestName = interest->getName();
-      if ( name_.isPrefixOf(interestName) ) {
-        std::cout << "Interest Received";
-        std::cout << " - Ping Reference = " << interestName.getSubName(interest->getName().size()-1).toUri().substr(1);
-        std::cout << std::endl;
-        char responseContent[] = "NDN TLV Ping Response";
-        Data data(interestName);
-        data.setFreshnessPeriod(freshnessSeconds_);
-        data.setContent((const uint8_t*)responseContent, sizeof(responseContent));
-        keyChain_.sign(data);
-        face_.put(data);
-        totalPings_++;
-      }
+    Name interestName;
+    interestName = interest->getName();
+    if ( name_.isPrefixOf(interestName) ) {
+      std::cout << "Interest Received";
+      std::cout << " - Ping Reference = " << interestName.getSubName(interest->getName().size()-1).toUri().substr(1);
+      std::cout << std::endl;
+      char responseContent[] = "NDN TLV Ping Response";
+      Data data(interestName);
+      data.setFreshnessPeriod(freshnessSeconds_);
+      data.setContent((const uint8_t*)responseContent, sizeof(responseContent));
+      keyChain_.sign(data);
+      face_.put(data);
+      totalPings_++;
     }
   }
 
   void
-  onRegisterFailed(const ptr_lib::shared_ptr<const Name>&)
+  onRegisterFailed( const ptr_lib::shared_ptr<const Name>& )
   {
     std::cerr << "ERROR: Failed to register prefix in local hub's daemon" << std::endl;
     face_.shutdown();
@@ -114,9 +107,14 @@ public:
     name_.set(prefix_);
     name_.append("ping");
     face_.setInterestFilter(name_,
-        func_lib::bind(&NdnTlvPingServer::onInterest, this, _1, _2),
-        func_lib::bind(&NdnTlvPingServer::onRegisterFailed, this, _1));
-    face_.processEvents();
+                            func_lib::bind(&NdnTlvPingServer::onInterest, this, _1, _2),
+                            func_lib::bind(&NdnTlvPingServer::onRegisterFailed, this, _1));
+    try {
+      face_.processEvents();
+    }
+    catch(std::exception &e) {
+          std::cerr << "ERROR: " << e.what() << std::endl;
+    }
   }
 
 private:
@@ -130,39 +128,33 @@ private:
   ptr_lib::shared_ptr<boost::asio::io_service> ioService_;
 };
 
-int main(int argc, char* argv[])
+int main( int argc, char* argv[] )
 {
   int res;
 
-  try {
-      NdnTlvPingServer ndnTlvPingServer (argv[0]);
-      while ((res = getopt(argc, argv, "hdx:")) != -1) {
-          switch (res) {
-          case 'h'  :
-            ndnTlvPingServer.usage();
-            break;
-          case 'x'  :
-            ndnTlvPingServer.setFreshnessSeconds(atoi(optarg));
-            break;
-          default   :
-            ndnTlvPingServer.usage();
-            break;
-          }
-      }
-
-      argc -= optind;
-      argv += optind;
-
-      if (argv[0] == NULL)
+  NdnTlvPingServer ndnTlvPingServer (argv[0]);
+  while ((res = getopt(argc, argv, "hdx:")) != -1) {
+    switch (res) {
+      case 'h'  :
         ndnTlvPingServer.usage();
-
-      ndnTlvPingServer.setPrefix(argv[0]);
-
-      ndnTlvPingServer.initialize();
-
+        break;
+      case 'x'  :
+        ndnTlvPingServer.setFreshnessSeconds(atoi(optarg));
+        break;
+      default   :
+        ndnTlvPingServer.usage();
+        break;
+    }
   }
-  catch(std::exception &e) {
-      std::cerr << "ERROR: " << e.what() << std::endl;
-  }
+
+  argc -= optind;
+  argv += optind;
+
+  if (argv[0] == NULL)
+    ndnTlvPingServer.usage();
+
+  ndnTlvPingServer.setPrefix(argv[0]);
+  ndnTlvPingServer.initialize();
+
   return 0;
 }
