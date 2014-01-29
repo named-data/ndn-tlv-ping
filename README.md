@@ -1,7 +1,7 @@
 Ping Application For NDN (ndn-tlv-ping)
 ======================================
 
-This is an application tool developed over ndn-cpp APIs for TLV packet
+This is an application tool developed over ndn-cpp-dev APIs for TLV packet
 based communication over NDN configured network. The NDN network has to
 be first created with 'ndnx' and 'ndnd-tlv'. This is followed by environment
 security setup with 'ndn-cpp-security-tools'. The application also requires
@@ -25,8 +25,9 @@ To run the following must be ensured(FOLLOW ORDER STRICTLY)
 
     git clone git://github.com/jeraldabraham/ndn-tlv-ping ndn-tlv-ping
     cd ndn-tlv-ping
-    make
-    sudo make install
+    ./waf configure
+    ./waf
+    sudo ./waf install
 
 ## 2. Tool Run Instructions & Command Line Options: ##
 
