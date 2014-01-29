@@ -12,7 +12,7 @@ To run the following must be ensured(FOLLOW ORDER STRICTLY)
 
 1. Install ndnx (install all necessary dependencies)
 2. Install CPP Boost Library > 1.47
-        sudo apt-get install libboost1.48-dev
+        sudo apt-get install libboost1.48-all-dev
 3. Install ndn-cpp-dev (install all necessary dependencies except boost)
 4. Install ndnd-tlv install all necessary dependencies except boost)
 5. Install and Configure Security Environment with ndn-cpp-security-tools
