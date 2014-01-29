@@ -30,7 +30,7 @@ To run the following must be ensured(FOLLOW ORDER STRICTLY)
 
 ## 2. Tool Run Instructions & Command Line Options: ##
 
-Usage: ndn-tlv-ping ndnx:/name/prefix [options]
+    Usage: ndn-tlv-ping ndnx:/name/prefix [options]
     Ping a NDN name prefix using Interests with namendnx:/name/prefix/ping/number.
     The numbers in the Interests are randomly generated unless specified.
         [-i interval] - set ping interval in seconds (minimum 1 second)
@@ -41,7 +41,8 @@ Usage: ndn-tlv-ping ndnx:/name/prefix [options]
         [-t] - print timestamp
         [-h] - print this message and exit
 
-Usage: ndn-tlv-pingserver ndnx:/name/prefix [options]
+
+    Usage: ndn-tlv-pingserver ndnx:/name/prefix [options]
     Starts a NDN ping server that responds to Interests with name ndnx:/name/prefix/ping/number.
         [-x freshness] - set FreshnessSeconds
         [-h] - print this message and exit
