@@ -1,46 +1,69 @@
-**Notes:**
----
-&nbsp;&nbsp;To run the following must be ensured
-<br>&nbsp;&nbsp;&nbsp;&nbsp;* Install ndnx
-<br>&nbsp;&nbsp;&nbsp;&nbsp;* Install ndn-tlv
-<br>&nbsp;&nbsp;&nbsp;&nbsp;* Install ndn-cpp
-<br>&nbsp;&nbsp;&nbsp;&nbsp;* Install and Configure Security Environment with ndn-cpp-security-tools
-<br>
-**Compile And Installation Instructions:**
----
-&nbsp;&nbsp;$ git clone git://github.com/jeraldabraham/ndn-tlv-ping ndntlvping
-<br>&nbsp;&nbsp;$ cd ndntlvping
-<br>&nbsp;&nbsp;$ make
-<br>&nbsp;&nbsp;$ sudo make install
-<br>
-**Tool Run Instructions & Command Line Options:**
----
-&nbsp;&nbsp;Usage: ndn-tlv-ping ndnx:/name/prefix [options]
-<br>&nbsp;&nbsp;Ping a NDN name prefix using Interests with namendnx:/name/prefix/ping/number.
-<br>&nbsp;&nbsp;The numbers in the Interests are randomly generated unless specified.
-<br>&nbsp;&nbsp;&nbsp;&nbsp;[-i interval] - set ping interval in seconds (minimum 1 second)
-<br>&nbsp;&nbsp;&nbsp;&nbsp;[-c count] - set total number of pings
-<br>&nbsp;&nbsp;&nbsp;&nbsp;[-n number] - set the starting number, the number is incremented by 1 after each Interest
-<br>&nbsp;&nbsp;&nbsp;&nbsp;[-p identifier] - add identifier to the Interest names before the numbers to avoid conflict
-<br>&nbsp;&nbsp;&nbsp;&nbsp;[-a] - allow routers to return ping Data from cache (allowed by default if NDNx version < 0.8.0)
-<br>&nbsp;&nbsp;&nbsp;&nbsp;[-t] - print timestamp
-<br>&nbsp;&nbsp;&nbsp;&nbsp;[-h] - print this message and exit
-<br>
-<br>&nbsp;&nbsp;Usage: ndn-tlv-pingserver ndnx:/name/prefix [options]
-<br>&nbsp;&nbsp;Starts a NDN ping server that responds to Interests with name ndnx:/name/prefix/ping/number.
-<br>&nbsp;&nbsp;&nbsp;&nbsp;[-x freshness] - set FreshnessSeconds
-<br>&nbsp;&nbsp;&nbsp;&nbsp;[-h] - print this message and exit
+Ping Application For NDN (ndn-tlv-ping)
+======================================
 
-**Example:**
----
-&nbsp;&nbsp;**On Machine #1: Start The ndnd-tlv**
-<br>&nbsp;&nbsp;$ ndnd-tlv-start
-<br>&nbsp;&nbsp;**On Machine #1: Start The Ping Server**
-<br>&nbsp;&nbsp;$ ndn-tlv-pingserver /test/pingserver
-<br>
-<br>&nbsp;&nbsp;**On Machine #2: Start The ndnd-tlv**
-<br>&nbsp;&nbsp;$ ndnd-tlv-start
-<br>&nbsp;&nbsp;**On Machine #2: Start The Ping Client Program**
-<br>&nbsp;&nbsp;$ ndn-tlv-ping /test/pingserver
-<br>
-<br>&nbsp;&nbsp;Use command line options shown above to adjust ping configuration.
+This is an application tool developed over ndn-cpp APIs for TLV packet
+based communication over NDN configured network. The NDN network has to
+be first created with 'ndnx' and 'ndnd-tlv'. This is followed by environment
+security setup with 'ndn-cpp-security-tools'. The application also requires
+installation of ndn-cpp and CPP boost libraries.
+
+To run the following must be ensured
+1. Install ndnx (install all necessary dependencies)
+2. Install ndn-cpp (install all necessary dependencies)
+3. Install ndnd-tlv install all necessary dependencies)
+4. Install and Configure Security Environment with ndn-cpp-security-tools
+5. Install CPP Boost Library > 1.47
+        sudo apt-get install libboost1.48-dev
+
+-----------------------------------------------------
+
+## 1. Compile And Installation Instructions: ##
+
+    git clone git://github.com/jeraldabraham/ndn-tlv-ping ndn-tlv-ping
+    cd ndn-tlv-ping
+    make
+    sudo make install
+
+
+## 2. Tool Run Instructions & Command Line Options: ##
+
+Usage: ndn-tlv-ping ndnx:/name/prefix [options]
+    Ping a NDN name prefix using Interests with namendnx:/name/prefix/ping/number.
+    The numbers in the Interests are randomly generated unless specified.
+        [-i interval] - set ping interval in seconds (minimum 1 second)
+        [-c count] - set total number of pings
+        [-n number] - set the starting number, the number is incremented by 1 after each Interest
+        [-p identifier] - add identifier to the Interest names before the numbers to avoid conflict
+        [-a] - allow routers to return ping Data from cache (allowed by default if NDNx version < 0.8.0)
+        [-t] - print timestamp
+        [-h] - print this message and exit
+
+Usage: ndn-tlv-pingserver ndnx:/name/prefix [options]
+    Starts a NDN ping server that responds to Interests with name ndnx:/name/prefix/ping/number.
+        [-x freshness] - set FreshnessSeconds
+        [-h] - print this message and exit
+
+
+## 3. Sample Run Instructions ##
+
+__ON MACHINE #1__
+
+Start the ndnd-tlv daemon
+
+        ndnd-tlv-start
+
+Start ping server
+
+        ndn-tlv-pingserver /test/pingserver
+
+__ON MACHINE #2__
+
+Start the ndnd-tlv daemon
+
+        ndnd-tlv-start
+
+Start the ping client
+        
+        ndn-tlv-ping /test/pingserver
+
+* Use command line options shown above to adjust ping configuration.
