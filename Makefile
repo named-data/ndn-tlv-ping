@@ -1,6 +1,6 @@
 CC			=	g++
 CFLAGS			=	-c -Wall
-LFLAGS			=	/usr/local/lib/libndn-cpp-dev.so /usr/lib/libboost_system.so.*
+LFLAGS			=	/usr/local/lib/libndn-cpp-dev.so -lboost_system
 all			:	ndn-tlv-pingserver ndn-tlv-ping
 ndn-tlv-pingserver	:	ndn-tlv-pingserver.o
 				$(CC) ndn-tlv-pingserver.o -o ndn-tlv-pingserver  $(LFLAGS)
