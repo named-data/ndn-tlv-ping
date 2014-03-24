@@ -67,6 +67,7 @@ Compiling and running ndn-traffic-generator requires the following dependencies:
     Usage: ndn-tlv-pingserver ndnx:/name/prefix [options]
     Starts a NDN ping server that responds to Interests with name ndnx:/name/prefix/ping/number.
         [-x freshness] - set FreshnessSeconds
+        [-p]           - specify number of pings to be satisfied (>=1)
         [-t]           - print timestamp wih messages
         [-h]           - print this message and exit
 

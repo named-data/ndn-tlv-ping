@@ -22,6 +22,7 @@ public:
     : m_programName(programName)
     , m_isAllowCachingSet(false)
     , m_isPrintTimestampSet(false)
+    , m_hasError(false)
     , m_totalPings(-1)
     , m_startPingNumber(-1)
     , m_pingsSent(0)
@@ -51,7 +52,7 @@ public:
     void
     addToPingStatistics(time::nanoseconds roundTripNanoseconds)
     {
-      double roundTripTime = roundTripNanoseconds.count()/1000000.0;
+      double roundTripTime = roundTripNanoseconds.count() / 1000000.0;
       if (roundTripTime < m_minimumRoundTripTime)
         m_minimumRoundTripTime = roundTripTime;
       if (roundTripTime > m_maximumRoundTripTime)
@@ -153,10 +154,17 @@ public:
   }
 
   void
-  setPrefix( char* prefix )
+  setPrefix(char* prefix)
   {
     m_prefix = prefix;
   }
+
+  bool
+  hasError() const
+  {
+    return m_hasError;
+  }
+
 
   void
   onData(const ndn::Interest& interest,
@@ -174,7 +182,7 @@ public:
     std::cout << "Content From " << m_prefix;
     std::cout << " - Ping Reference = " <<
       interest.getName().getSubName(interest.getName().size()-1).toUri().substr(1);
-    std::cout << "  \t- Round Trip Time = " << time::duration_cast<time::milliseconds>(roundTripTime) << std::endl;
+    std::cout << "  \t- Round Trip Time = " << roundTripTime.count() / 1000000.0 << std::endl;
     m_pingStatistics.addToPingStatistics(roundTripTime);
   }
 
@@ -191,23 +199,22 @@ public:
 
   void
   printPingStatistics()
-  {
-    double packetLossPercentage;
+  {    
     std::cout << "\n\n=== " << " Ping Statistics For "<< m_prefix <<" ===" << std::endl;
     std::cout << "Sent=" << m_pingStatistics.m_sentPings;
     std::cout << ", Received=" << m_pingStatistics.m_receivedPings;
-    packetLossPercentage = m_pingStatistics.m_sentPings-m_pingStatistics.m_receivedPings;
-    packetLossPercentage /= m_pingStatistics.m_sentPings;
-    std::cout << ", Packet Loss=" << packetLossPercentage*100.0 << "%";
+    double packetLossRate = m_pingStatistics.m_sentPings - m_pingStatistics.m_receivedPings;
+    packetLossRate /= m_pingStatistics.m_sentPings;
+    std::cout << ", Packet Loss=" << packetLossRate * 100.0 << "%";
+    if (m_pingStatistics.m_sentPings != m_pingStatistics.m_receivedPings)
+      m_hasError = true;
     std::cout << ", Total Time=" << m_pingStatistics.m_averageRoundTripTimeData << " ms\n";
     if (m_pingStatistics.m_receivedPings > 0) {
-      double averageRoundTripTime;
-      double standardDeviationRoundTripTime;
-      averageRoundTripTime =
+      double averageRoundTripTime =
         m_pingStatistics.m_averageRoundTripTimeData / m_pingStatistics.m_receivedPings;
-      standardDeviationRoundTripTime =
+      double standardDeviationRoundTripTime =
         m_pingStatistics.m_standardDeviationRoundTripTimeData / m_pingStatistics.m_receivedPings;
-      standardDeviationRoundTripTime -= averageRoundTripTime*averageRoundTripTime;
+      standardDeviationRoundTripTime -= averageRoundTripTime * averageRoundTripTime;
       standardDeviationRoundTripTime = std::sqrt(standardDeviationRoundTripTime);
       std::cout << "Round Trip Time (Min/Max/Avg/MDev) = (";
       std::cout << m_pingStatistics.m_minimumRoundTripTime << "/";
@@ -262,6 +269,12 @@ public:
             std::cerr << "ERROR: " << e.what() << std::endl;
         }
     }
+    else
+      {
+        m_face.shutdown();
+        printPingStatistics();
+        m_ioService->stop();
+      }
   }
 
   void
@@ -281,8 +294,7 @@ public:
     signalSet.async_wait(bind(&NdnTlvPing::signalHandler, this));
 
     boost::asio::deadline_timer deadlineTimer(*m_ioService,
-                                              boost::posix_time::millisec(m_pingInterval.count()));
-
+                                              boost::posix_time::millisec(0));
 
     deadlineTimer.async_wait(bind(&NdnTlvPing::performPing,
                                   this,
@@ -291,13 +303,16 @@ public:
       m_face.processEvents();
     }
     catch(std::exception& e) {
-        std::cerr << "ERROR: " << e.what() << std::endl;
+      std::cerr << "ERROR: " << e.what() << std::endl;
+      m_hasError = true;
+      m_ioService->stop();
     }
   }
 
 private:
 
   bool m_isAllowCachingSet;
+  bool m_hasError;
   bool m_isPrintTimestampSet;
   time::milliseconds m_pingTimeoutThreshold;
   int m_totalPings;
@@ -362,7 +377,12 @@ main(int argc, char* argv[])
   ndnTlvPing.setPrefix(argv[0]);
   ndnTlvPing.run();
 
-  return 0;
+  std::cout << std::endl;
+
+  if (ndnTlvPing.hasError())
+    return 1;
+  else
+    return 0;
 }
 
 
