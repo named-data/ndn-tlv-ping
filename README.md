@@ -34,11 +34,10 @@ Compiling and running ndn-traffic-generator requires the following dependencies:
     distribution, if the version matches requirements, or compiled from source
     (http://www.boost.org)
 
-2. ndn-cpp-dev library (https://github.com/named-data/ndn-cpp-dev)
+2. ndn-cxx library (https://github.com/named-data/ndn-cxx)
 
     For detailed installation instructions refer to
-    https://github.com/named-data/ndn-cpp-dev/blob/master/INSTALL.md and/or
-    https://github.com/named-data/ndn-cpp-dev
+    https://github.com/named-data/ndn-cxx
 
 3. NDN forwarding daemon (https://github.com/named-data/NFD)
 
@@ -52,8 +51,8 @@ Compiling and running ndn-traffic-generator requires the following dependencies:
 
 ## 2. Tool Run Instructions & Command Line Options: ##
 
-    Usage: ndn-tlv-ping ndnx:/name/prefix [options]
-    Ping a NDN name prefix using Interests with namendnx:/name/prefix/ping/number.
+    Usage: ndn-tlv-ping ndn:/name/prefix [options]
+    Ping a NDN name prefix using Interests with name ndn:/name/prefix/ping/number.
     The numbers in the Interests are randomly generated unless specified.
         [-i interval]   - set ping interval in seconds (minimum 1 second)
         [-c count]      - set total number of pings
@@ -64,8 +63,8 @@ Compiling and running ndn-traffic-generator requires the following dependencies:
         [-h]            - print this message and exit
 
 
-    Usage: ndn-tlv-pingserver ndnx:/name/prefix [options]
-    Starts a NDN ping server that responds to Interests with name ndnx:/name/prefix/ping/number.
+    Usage: ndn-tlv-pingserver ndn:/name/prefix [options]
+    Starts a NDN ping server that responds to Interests with name ndn:/name/prefix/ping/number.
         [-x freshness] - set FreshnessSeconds
         [-p]           - specify number of pings to be satisfied (>=1)
         [-t]           - print timestamp wih messages

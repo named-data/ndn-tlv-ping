@@ -8,16 +8,18 @@
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
+#include <boost/noncopyable.hpp>
 
-#include <ndn-cpp-dev/face.hpp>
-#include <ndn-cpp-dev/name.hpp>
+#include <ndn-cxx/face.hpp>
+#include <ndn-cxx/name.hpp>
 
 namespace ndn {
 
-class NdnTlvPing
+class NdnTlvPing : boost::noncopyable
 {
 public:
 
+  explicit
   NdnTlvPing(char* programName)
     : m_programName(programName)
     , m_isAllowCachingSet(false)
@@ -35,10 +37,11 @@ public:
   {
   }
 
-  class PingStatistics
+  class PingStatistics : boost::noncopyable
   {
   public:
 
+    explicit
     PingStatistics()
       : m_sentPings(0)
       , m_receivedPings(0)
@@ -74,9 +77,9 @@ public:
   void
   usage()
   {
-    std::cout << "\n Usage:\n " << m_programName << " ndnx:/name/prefix [options]\n"
+    std::cout << "\n Usage:\n " << m_programName << " ndn:/name/prefix [options]\n"
         " Ping a NDN name prefix using Interests with name"
-        "ndnx:/name/prefix/ping/number.\n"
+        "ndn:/name/prefix/ping/number.\n"
         " The numbers in the Interests are randomly generated unless specified.\n"
         "   [-i interval]   - set ping interval in seconds (minimum "
         << getPingMinimumInterval().count() << " milliseconds)\n"
@@ -182,7 +185,8 @@ public:
     std::cout << "Content From " << m_prefix;
     std::cout << " - Ping Reference = " <<
       interest.getName().getSubName(interest.getName().size()-1).toUri().substr(1);
-    std::cout << "  \t- Round Trip Time = " << roundTripTime.count() / 1000000.0 << std::endl;
+    std::cout << "  \t- Round Trip Time = " <<
+      roundTripTime.count() / 1000000.0 << " ms" << std::endl;
     m_pingStatistics.addToPingStatistics(roundTripTime);
   }
 
@@ -199,7 +203,7 @@ public:
 
   void
   printPingStatistics()
-  {    
+  {
     std::cout << "\n\n=== " << " Ping Statistics For "<< m_prefix <<" ===" << std::endl;
     std::cout << "Sent=" << m_pingStatistics.m_sentPings;
     std::cout << ", Received=" << m_pingStatistics.m_receivedPings;
@@ -341,30 +345,30 @@ main(int argc, char* argv[])
   while ((res = getopt(argc, argv, "htai:c:n:p:")) != -1)
     {
       switch (res) {
-        case 'a':
-          ndnTlvPing.setAllowCaching();
-          break;
-        case 'c':
-          ndnTlvPing.setTotalPings(atoi(optarg));
-          break;
-        case 'h':
-          ndnTlvPing.usage();
-          break;
-        case 'i':
-          ndnTlvPing.setPingInterval(atoi(optarg));
-          break;
-        case 'n':
-          ndnTlvPing.setStartPingNumber(atoi(optarg));
-          break;
-        case 'p':
-          ndnTlvPing.setClientIdentifier(optarg);
-          break;
-        case 't':
-          ndnTlvPing.setPrintTimestamp();
-          break;
-        default:
-          ndnTlvPing.usage();
-          break;
+      case 'a':
+        ndnTlvPing.setAllowCaching();
+        break;
+      case 'c':
+        ndnTlvPing.setTotalPings(atoi(optarg));
+        break;
+      case 'h':
+        ndnTlvPing.usage();
+        break;
+      case 'i':
+        ndnTlvPing.setPingInterval(atoi(optarg));
+        break;
+      case 'n':
+        ndnTlvPing.setStartPingNumber(atoi(optarg));
+        break;
+      case 'p':
+        ndnTlvPing.setClientIdentifier(optarg);
+        break;
+      case 't':
+        ndnTlvPing.setPrintTimestamp();
+        break;
+      default:
+        ndnTlvPing.usage();
+        break;
       }
     }
 

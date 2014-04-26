@@ -6,17 +6,19 @@
  */
 
 #include <boost/asio.hpp>
+#include <boost/noncopyable.hpp>
 
-#include <ndn-cpp-dev/name.hpp>
-#include <ndn-cpp-dev/face.hpp>
-#include <ndn-cpp-dev/security/key-chain.hpp>
+#include <ndn-cxx/face.hpp>
+#include <ndn-cxx/name.hpp>
+#include <ndn-cxx/security/key-chain.hpp>
 
 namespace ndn {
 
-class NdnTlvPingServer
+class NdnTlvPingServer : boost::noncopyable
 {
 public:
 
+  explicit
   NdnTlvPingServer(char* programName)
     : m_programName(programName)
     , m_hasError(false)
@@ -32,9 +34,9 @@ public:
   void
   usage()
   {
-    std::cout << "\n Usage:\n " << m_programName << " ndnx:/name/prefix [options]\n"
+    std::cout << "\n Usage:\n " << m_programName << " ndn:/name/prefix [options]\n"
         " Starts a NDN ping server that responds to Interests with name"
-        " ndnx:/name/prefix/ping/number.\n"
+        " ndn:/name/prefix/ping/number.\n"
         "   [-x freshness] - set FreshnessSeconds\n"
         "   [-p]           - specify number of pings to be satisfied (>=1)\n"
         "   [-t]           - print timestamp\n"
@@ -171,7 +173,6 @@ private:
 
 };
 
-
 }
 
 int
@@ -183,27 +184,26 @@ main(int argc, char* argv[])
   while ((res = getopt(argc, argv, "hdtp:x:")) != -1)
     {
       switch (res) {
-        case 'h':
-          ndnTlvPingServer.usage();
-          break;
-        case 'p':
-          ndnTlvPingServer.setMaximumPings(atoi(optarg));
-          break;
-        case 'x':
-          ndnTlvPingServer.setFreshnessPeriod(atoi(optarg));
-          break;
-        case 't':
-          ndnTlvPingServer.setPrintTimestamp();
-          break;
-        default:
-          ndnTlvPingServer.usage();
-          break;
-     }
-   }
+      case 'h':
+        ndnTlvPingServer.usage();
+        break;
+      case 'p':
+        ndnTlvPingServer.setMaximumPings(atoi(optarg));
+        break;
+      case 'x':
+        ndnTlvPingServer.setFreshnessPeriod(atoi(optarg));
+        break;
+      case 't':
+        ndnTlvPingServer.setPrintTimestamp();
+        break;
+      default:
+        ndnTlvPingServer.usage();
+        break;
+      }
+    }
 
   argc -= optind;
   argv += optind;
-
 
   if (argv[0] == 0)
     ndnTlvPingServer.usage();
