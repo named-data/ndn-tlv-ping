@@ -1,8 +1,21 @@
+/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil -*- */
 /**
+ * Copyright (C) 2014 Arizona Board of Regents
  *
- * Copyright (C) 2013 University of Arizona.
+ * This file is part of ndn-tlv-ping (Ping Application for Named Data Networking).
+ *
+ * ndn-tlv-ping is a free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later version.
+ *
+ * ndn-tlv-ping is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+ * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * ndn-tlv-ping, e.g., in LICENSE file.  If not, see <http://www.gnu.org/licenses/>.
+ *
  * @author: Jerald Paul Abraham <jeraldabraham@email.arizona.edu>
- *
  */
 
 #include <boost/asio.hpp>
