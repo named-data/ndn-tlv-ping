@@ -45,7 +45,6 @@ public:
     , m_pingInterval(getPingMinimumInterval())
     , m_clientIdentifier(0)
     , m_pingTimeoutThreshold(getPingTimeoutThreshold())
-    , m_ioService(new boost::asio::io_service)
     , m_face(m_ioService)
   {
   }
@@ -290,7 +289,7 @@ public:
       {
         m_face.shutdown();
         printPingStatistics();
-        m_ioService->stop();
+        m_ioService.stop();
       }
   }
 
@@ -307,10 +306,10 @@ public:
   {
     std::cout << "\n=== Pinging " << m_prefix  << " ===\n" <<std::endl;
 
-    boost::asio::signal_set signalSet(*m_ioService, SIGINT, SIGTERM);
+    boost::asio::signal_set signalSet(m_ioService, SIGINT, SIGTERM);
     signalSet.async_wait(bind(&NdnTlvPing::signalHandler, this));
 
-    boost::asio::deadline_timer deadlineTimer(*m_ioService,
+    boost::asio::deadline_timer deadlineTimer(m_ioService,
                                               boost::posix_time::millisec(0));
 
     deadlineTimer.async_wait(bind(&NdnTlvPing::performPing,
@@ -322,7 +321,7 @@ public:
     catch(std::exception& e) {
       std::cerr << "ERROR: " << e.what() << std::endl;
       m_hasError = true;
-      m_ioService->stop();
+      m_ioService.stop();
     }
   }
 
@@ -341,7 +340,7 @@ private:
   char* m_programName;
   char* m_prefix;
   PingStatistics m_pingStatistics;
-  shared_ptr<boost::asio::io_service> m_ioService;
+  boost::asio::io_service m_ioService;
   Face m_face;
 
 };
@@ -401,5 +400,3 @@ main(int argc, char* argv[])
   else
     return 0;
 }
-
-

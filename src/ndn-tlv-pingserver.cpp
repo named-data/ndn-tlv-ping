@@ -39,7 +39,6 @@ public:
     , m_freshnessPeriod(getMinimumFreshnessPeriod())
     , m_maximumPings(-1)
     , m_totalPings(0)
-    , m_ioService(new boost::asio::io_service)
     , m_face(m_ioService)
   {
   }
@@ -122,7 +121,7 @@ public:
             std::cout << "\n\nTotal Ping Interests Processed = " << m_totalPings << std::endl;
             std::cout << "Shutting Down Ping Server (" << m_name << ").\n" << std::endl;
             m_face.shutdown();
-            m_ioService->stop();
+            m_ioService.stop();
           }
       }
   }
@@ -134,7 +133,7 @@ public:
     std::cerr << "REASON: " << reason << std::endl;
     m_hasError = true;
     m_face.shutdown();
-    m_ioService->stop();
+    m_ioService.stop();
   }
 
   void
@@ -151,7 +150,7 @@ public:
   {
     std::cout << "\n=== Ping Server " << m_prefix <<" ===\n" << std::endl;
 
-    boost::asio::signal_set signalSet(*m_ioService, SIGINT, SIGTERM);
+    boost::asio::signal_set signalSet(m_ioService, SIGINT, SIGTERM);
     signalSet.async_wait(boost::bind(&NdnTlvPingServer::signalHandler, this));
     m_name.set(m_prefix);
     m_name.append("ping");
@@ -166,7 +165,7 @@ public:
     catch (std::exception& e) {
       std::cerr << "ERROR: " << e.what() << std::endl;
       m_hasError = true;
-      m_ioService->stop();
+      m_ioService.stop();
     }
   }
 
@@ -181,7 +180,7 @@ private:
   char* m_programName;
   char* m_prefix;
   Name m_name;
-  shared_ptr<boost::asio::io_service> m_ioService;
+  boost::asio::io_service m_ioService;
   Face m_face;
 
 };
