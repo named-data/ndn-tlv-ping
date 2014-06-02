@@ -351,6 +351,7 @@ private:
 int
 main(int argc, char* argv[])
 {
+  std::srand(::time(0));
   int res;
 
   ndn::NdnTlvPing ndnTlvPing(argv[0]);
