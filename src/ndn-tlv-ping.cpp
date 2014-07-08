@@ -100,8 +100,7 @@ public:
         " after each Interest\n"
         "   [-p identifier] - add identifier to the Interest names before the"
         " numbers to avoid conflict\n"
-        "   [-a]            - allow routers to return ping Data from cache"
-        " (allowed by default if NDNx version < 0.8.0)\n"
+        "   [-a]            - allow routers to return stale Data from cache\n"
         "   [-t]            - print timestamp with messages\n"
         "   [-h]            - print this message and exit\n\n";
     exit(1);
