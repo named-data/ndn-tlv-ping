@@ -46,6 +46,7 @@ public:
     , m_clientIdentifier(0)
     , m_pingTimeoutThreshold(getPingTimeoutThreshold())
     , m_face(m_ioService)
+    , m_outstanding(0)
   {
   }
 
@@ -91,7 +92,7 @@ public:
   {
     std::cout << "\n Usage:\n " << m_programName << " ndn:/name/prefix [options]\n"
         " Ping a NDN name prefix using Interests with name"
-        "ndn:/name/prefix/ping/number.\n"
+        " ndn:/name/prefix/ping/number.\n"
         " The numbers in the Interests are randomly generated unless specified.\n"
         "   [-i interval]   - set ping interval in seconds (minimum "
         << getPingMinimumInterval().count() << " milliseconds)\n"
@@ -135,7 +136,7 @@ public:
   }
 
   void
-  setStartPingNumber(int startPingNumber)
+  setStartPingNumber(int64_t startPingNumber)
   {
     if (startPingNumber < 0)
       usage();
@@ -199,6 +200,7 @@ public:
     std::cout << "  \t- Round Trip Time = " <<
       roundTripTime.count() / 1000000.0 << " ms" << std::endl;
     m_pingStatistics.addToPingStatistics(roundTripTime);
+    this->finish();
   }
 
   void
@@ -210,6 +212,7 @@ public:
     std::cout << " - Ping Reference = " <<
       interest.getName().getSubName(interest.getName().size()-1).toUri().substr(1);
     std::cout << std::endl;
+    this->finish();
   }
 
   void
@@ -257,7 +260,7 @@ public:
         std::memset(pingNumberString, 0, 20);
         if (m_startPingNumber < 0)
             m_startPingNumber = std::rand();
-        sprintf(pingNumberString, "%d", m_startPingNumber);
+        sprintf(pingNumberString, "%lld", static_cast<long long int>(m_startPingNumber));
         pingPacketName.append(pingNumberString);
         ndn::Interest interest(pingPacketName);
         if (m_isAllowCachingSet)
@@ -280,16 +283,25 @@ public:
                                          this,
                                          deadlineTimer));
         }
-        catch(std::exception& e) {
+        catch (std::exception& e) {
             std::cerr << "ERROR: " << e.what() << std::endl;
         }
+        ++m_outstanding;
     }
-    else
-      {
-        m_face.shutdown();
-        printPingStatistics();
-        m_ioService.stop();
-      }
+    else {
+      this->finish();
+    }
+  }
+
+  void
+  finish()
+  {
+    if (--m_outstanding >= 0) {
+      return;
+    }
+    m_face.shutdown();
+    printPingStatistics();
+    m_ioService.stop();
   }
 
   void
@@ -317,7 +329,7 @@ public:
     try {
       m_face.processEvents();
     }
-    catch(std::exception& e) {
+    catch (std::exception& e) {
       std::cerr << "ERROR: " << e.what() << std::endl;
       m_hasError = true;
       m_ioService.stop();
@@ -325,7 +337,6 @@ public:
   }
 
 private:
-
   bool m_isAllowCachingSet;
   bool m_hasError;
   bool m_isPrintTimestampSet;
@@ -333,7 +344,7 @@ private:
   int m_totalPings;
   int m_pingsSent;
   int m_pingsReceived;
-  int m_startPingNumber;
+  int64_t m_startPingNumber;
   time::milliseconds m_pingInterval;
   char* m_clientIdentifier;
   char* m_programName;
@@ -341,7 +352,7 @@ private:
   PingStatistics m_pingStatistics;
   boost::asio::io_service m_ioService;
   Face m_face;
-
+  ssize_t m_outstanding;
 };
 
 }
@@ -370,7 +381,12 @@ main(int argc, char* argv[])
         ndnTlvPing.setPingInterval(atoi(optarg));
         break;
       case 'n':
-        ndnTlvPing.setStartPingNumber(atoi(optarg));
+        try {
+          ndnTlvPing.setStartPingNumber(boost::lexical_cast<int64_t>(optarg));
+        }
+        catch (boost::bad_lexical_cast&) {
+          ndnTlvPing.usage();
+        }
         break;
       case 'p':
         ndnTlvPing.setClientIdentifier(optarg);
