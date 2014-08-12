@@ -99,31 +99,25 @@ public:
   void
   onInterest(const Name& name, const Interest& interest)
   {
-    Name interestName;
-    interestName = interest.getName();
-    if (m_name.isPrefixOf(interestName))
-      {
-        if (m_isPrintTimestampSet)
-          std::cout << time::toIsoString(time::system_clock::now())  << " - ";
-        std::cout << "Interest Received";
-        std::cout << " - Ping Reference = " <<
-          interestName.getSubName(interest.getName().size()-1).toUri().substr(1);
-        std::cout << std::endl;
-        char responseContent[] = "NDN TLV Ping Response";
-        Data data(interestName);
-        data.setFreshnessPeriod(m_freshnessPeriod);
-        data.setContent((const uint8_t*)responseContent, sizeof(responseContent));
-        m_keyChain.sign(data);
-        m_face.put(data);
-        m_totalPings++;
-        if (m_maximumPings > 0 && m_maximumPings == m_totalPings)
-          {
-            std::cout << "\n\nTotal Ping Interests Processed = " << m_totalPings << std::endl;
-            std::cout << "Shutting Down Ping Server (" << m_name << ").\n" << std::endl;
-            m_face.shutdown();
-            m_ioService.stop();
-          }
-      }
+    Name interestName = interest.getName();
+    if (m_isPrintTimestampSet)
+      std::cout << time::toIsoString(time::system_clock::now())  << " - ";
+    std::cout << "Interest Received - Ping Reference = "
+              << interestName.at(-1).toUri() << std::endl;
+    char responseContent[] = "NDN TLV Ping Response";
+    shared_ptr<Data> data = make_shared<Data>(interestName);
+    data->setFreshnessPeriod(m_freshnessPeriod);
+    data->setContent(reinterpret_cast<const uint8_t*>(responseContent),
+                     sizeof(responseContent));
+    m_keyChain.sign(*data);
+    m_face.put(*data);
+    ++m_totalPings;
+    if (m_maximumPings > 0 && m_maximumPings == m_totalPings) {
+      std::cout << "\n\nTotal Ping Interests Processed = " << m_totalPings << std::endl;
+      std::cout << "Shutting Down Ping Server (" << m_name << ").\n" << std::endl;
+      m_face.shutdown();
+      m_ioService.stop();
+    }
   }
 
   void
