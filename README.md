@@ -7,7 +7,7 @@
 Install prerequisites:
 
 1. install [ndn-cxx](http://named-data.net/doc/ndn-cxx/current/INSTALL.html)
-2. install [NFD](http://named-data.net/doc/NFD/current/getting-started.html)
+2. install [NFD](http://named-data.net/doc/NFD/current/INSTALL.html)
 
 Compile and install `ndn-tlv-ping`
 
