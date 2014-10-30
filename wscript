@@ -5,10 +5,12 @@ VERSION='0.1'
 APPNAME="ndn-tlv-ping"
 
 def options(opt):
-    opt.load('compiler_cxx gnu_dirs')
+    opt.load(['compiler_cxx', 'gnu_dirs'])
+    opt.load(['default-compiler-flags'], tooldir=['.waf-tools'])
 
 def configure(conf):
-    conf.load("compiler_cxx gnu_dirs")
+    conf.load(['compiler_cxx', 'gnu_dirs',
+               'default-compiler-flags'])
 
     if not os.environ.has_key('PKG_CONFIG_PATH'):
         os.environ['PKG_CONFIG_PATH'] = ':'.join([

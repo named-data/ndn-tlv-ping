@@ -145,7 +145,7 @@ public:
     std::cout << "\n=== Ping Server " << m_prefix <<" ===\n" << std::endl;
 
     boost::asio::signal_set signalSet(m_ioService, SIGINT, SIGTERM);
-    signalSet.async_wait(boost::bind(&NdnTlvPingServer::signalHandler, this));
+    signalSet.async_wait(bind([this]() { signalHandler(); }));
     m_name.set(m_prefix);
     m_name.append("ping");
     m_face.setInterestFilter(m_name,
@@ -164,19 +164,19 @@ public:
   }
 
 private:
-
-  KeyChain m_keyChain;
-  bool m_isPrintTimestampSet;
+  char* m_programName;
   bool m_hasError;
+  bool m_isPrintTimestampSet;
+  time::milliseconds m_freshnessPeriod;
   int m_maximumPings;
   int m_totalPings;
-  time::milliseconds m_freshnessPeriod;
-  char* m_programName;
+
   char* m_prefix;
   Name m_name;
-  boost::asio::io_service m_ioService;
-  Face m_face;
 
+  boost::asio::io_service m_ioService;
+  KeyChain m_keyChain;
+  Face m_face;
 };
 
 }

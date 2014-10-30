@@ -45,8 +45,8 @@ public:
     , m_pingInterval(getPingMinimumInterval())
     , m_clientIdentifier(0)
     , m_pingTimeoutThreshold(getPingTimeoutThreshold())
-    , m_face(m_ioService)
     , m_outstanding(0)
+    , m_face(m_ioService)
   {
   }
 
@@ -272,11 +272,12 @@ public:
         m_startPingNumber++;
          try {
           m_face.expressInterest(interest,
-                                 bind(&NdnTlvPing::onData,
-                                      this, _1, _2,
-                                      time::steady_clock::now()),
-                                 bind(&NdnTlvPing::onTimeout,
-                                      this, _1));
+                                 [this](const Interest& interest, Data& data) {
+                                   onData(interest, data, time::steady_clock::now());
+                                 },
+                                 [this](const Interest& interest) {
+                                   onTimeout(interest);
+                                 });
           deadlineTimer->expires_at(deadlineTimer->expires_at() +
                                     boost::posix_time::millisec(m_pingInterval.count()));
           deadlineTimer->async_wait(bind(&NdnTlvPing::performPing,
@@ -337,22 +338,23 @@ public:
   }
 
 private:
+  char* m_programName;
   bool m_isAllowCachingSet;
-  bool m_hasError;
   bool m_isPrintTimestampSet;
-  time::milliseconds m_pingTimeoutThreshold;
+  bool m_hasError;
   int m_totalPings;
+  int64_t m_startPingNumber;
   int m_pingsSent;
   int m_pingsReceived;
-  int64_t m_startPingNumber;
   time::milliseconds m_pingInterval;
   char* m_clientIdentifier;
-  char* m_programName;
+  time::milliseconds m_pingTimeoutThreshold;
   char* m_prefix;
   PingStatistics m_pingStatistics;
+  ssize_t m_outstanding;
+
   boost::asio::io_service m_ioService;
   Face m_face;
-  ssize_t m_outstanding;
 };
 
 }
