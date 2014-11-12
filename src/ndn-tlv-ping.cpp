@@ -272,12 +272,9 @@ public:
         m_startPingNumber++;
          try {
           m_face.expressInterest(interest,
-                                 [this](const Interest& interest, Data& data) {
-                                   onData(interest, data, time::steady_clock::now());
-                                 },
-                                 [this](const Interest& interest) {
-                                   onTimeout(interest);
-                                 });
+                                 std::bind(&NdnTlvPing::onData, this, _1, _2,
+                                           time::steady_clock::now()),
+                                 std::bind(&NdnTlvPing::onTimeout, this, _1));
           deadlineTimer->expires_at(deadlineTimer->expires_at() +
                                     boost::posix_time::millisec(m_pingInterval.count()));
           deadlineTimer->async_wait(bind(&NdnTlvPing::performPing,
