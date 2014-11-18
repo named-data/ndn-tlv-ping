@@ -18,13 +18,13 @@
  * @author: Jerald Paul Abraham <jeraldabraham@email.arizona.edu>
  */
 
+#include <ndn-cxx/face.hpp>
+#include <ndn-cxx/name.hpp>
+
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/noncopyable.hpp>
-
-#include <ndn-cxx/face.hpp>
-#include <ndn-cxx/name.hpp>
 
 namespace ndn {
 

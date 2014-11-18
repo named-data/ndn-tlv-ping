@@ -18,12 +18,12 @@
  * @author: Jerald Paul Abraham <jeraldabraham@email.arizona.edu>
  */
 
-#include <boost/asio.hpp>
-#include <boost/noncopyable.hpp>
-
 #include <ndn-cxx/face.hpp>
 #include <ndn-cxx/name.hpp>
 #include <ndn-cxx/security/key-chain.hpp>
+
+#include <boost/asio.hpp>
+#include <boost/noncopyable.hpp>
 
 namespace ndn {
 
