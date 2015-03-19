@@ -146,7 +146,7 @@ public:
 
     boost::asio::signal_set signalSet(m_ioService, SIGINT, SIGTERM);
     signalSet.async_wait(bind([this]() { signalHandler(); }));
-    m_name.set(m_prefix);
+    m_name = m_prefix;
     m_name.append("ping");
     m_face.setInterestFilter(m_name,
                              bind(&NdnTlvPingServer::onInterest,
