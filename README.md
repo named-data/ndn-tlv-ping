@@ -1,5 +1,8 @@
 # ndn-tlv-ping: Reachability Testing Tool for NDN
 
+**`ndn-tlv-ping` has been deprecated. Please use `ndnping` and `ndnpingserver` from
+[ndn-tools](https://github.com/named-data/ndn-tools) instead.**
+
 `ndn-tlv-ping` is a data plane reachability testing tool for NDN network.
 
 ## Installation
